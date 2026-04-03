@@ -1,11 +1,17 @@
-# Stage 1: Build
 FROM node:18 AS builder
 WORKDIR /app
+
 COPY package*.json ./
-RUN npm install
+
+# Fix starts here
+RUN npm config set registry https://registry.npmjs.org/ \
+ && npm config set fetch-retries 5 \
+ && npm config set fetch-retry-maxtimeout 600000 \
+ && npm install
+# Fix ends here
+
 COPY . .
 
-# Stage 2: Production
 FROM node:18-alpine
 WORKDIR /app
 COPY --from=builder /app .
